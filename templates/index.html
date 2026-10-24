@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MaEva | Asistente de Matemáticas</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand-mark">∑</div>
+  <div><strong>MaEva</strong><small>Asistente de Matemáticas</small></div>
+  <span class="status"><i></i> Motor matemático activo</span>
+</header>
+<div class="layout">
+  <aside class="sidebar">
+    <p class="eyebrow">HERRAMIENTAS</p>
+    <button class="nav active" data-tab="solver">⌘ Resolver ejercicios</button>
+    <button class="nav" data-tab="graph">⌁ Graficar funciones</button>
+    <button class="nav" data-tab="practice">✓ Práctica interactiva</button>
+    <button class="nav" data-tab="calculator">▦ Calculadora</button>
+    <div class="sidebar-note"><strong>Consejo</strong><p>Usa <code>^</code> para potencias. Ejemplo: <code>x^2-4</code>.</p></div>
+    <div class="team"><small>PROYECTO ACADÉMICO</small><p>Universidad Mariano Gálvez de Guatemala</p><label>Integrantes</label><input id="student1" placeholder="Nombre del integrante 1"><input id="student2" placeholder="Nombre del integrante 2"><label>Asignatura y sección</label><input id="course" placeholder="Ej. Precálculo · Sección A"><button id="saveTeam" class="secondary full">Guardar datos</button><small id="teamSaved"></small></div>
+  </aside>
+  <main>
+    <section id="solver" class="panel">
+      <div class="hero"><div class="eyebrow">TU TUTOR MATEMÁTICO</div><h1>Resolvamos las matemáticas<br><span>paso a paso.</span></h1><p>Escribe una expresión y selecciona qué quieres hacer.</p></div>
+      <div class="card">
+        <label for="mode">Tipo de ejercicio</label>
+        <select id="mode">
+          <option value="simplify">Simplificar expresión</option><option value="factor">Factorizar</option><option value="expand">Desarrollar expresión</option><option value="equation">Resolver ecuación = 0</option><option value="domain">Dominio real</option><option value="limit">Límite</option><option value="derivative">Derivada</option><option value="integral">Integral indefinida</option><option value="definite">Integral definida</option><option value="evaluate">Evaluar función</option><option value="critical">Puntos críticos y extremos</option><option value="compose">Composición f(g(x))</option>
+        </select>
+        <label for="expression">Expresión matemática</label>
+        <input id="expression" class="math-input" placeholder="Ej. (x^2-4)/(x-2)" autocomplete="off">
+        <div id="extraFields"></div>
+        <div class="examples"><button class="chip" data-expression="x^3-6*x^2+9*x+1" data-mode="critical">Ejemplo: puntos críticos</button><button class="chip" data-expression="(x^2-4)/(x-2)" data-mode="limit" data-point="2">Ejemplo: límite</button><button class="chip" data-expression="x^3+2*x^2-x" data-mode="derivative">Ejemplo: derivada</button></div>
+        <button id="solveBtn" class="primary">Resolver ejercicio <span>→</span></button>
+        <p class="error" id="error" role="alert"></p>
+      </div>
+      <div id="result" class="card result hidden">
+        <div class="result-heading"><span class="eyebrow">RESULTADO</span><span class="pill">Cálculo simbólico</span></div>
+        <div id="answer" class="answer"></div><div id="answerText" class="answer-text"></div>
+        <h3>Procedimiento</h3><ol id="steps"></ol><div id="criticalDetails"></div>
+      </div>
+    </section>
+    <section id="graph" class="panel hidden">
+      <div class="hero"><div class="eyebrow">REPRESENTACIÓN GRÁFICA</div><h1>Visualiza tu <span>función.</span></h1><p>Explora la curva, las intersecciones y su comportamiento.</p></div>
+      <div class="card"><label for="graphExpr">f(x) =</label><input id="graphExpr" class="math-input" value="x^3-6*x^2+9*x+1"><div class="row"><div><label for="xmin">x mínimo</label><input id="xmin" type="number" value="-3"></div><div><label for="xmax">x máximo</label><input id="xmax" type="number" value="7"></div></div><button id="graphBtn" class="primary">Graficar función →</button><p id="graphError" class="error"></p><div id="plot" class="plot"></div><p class="muted">La gráfica es una representación numérica aproximada. Revisa el dominio cuando haya denominadores, raíces o discontinuidades.</p></div>
+    </section>
+    <section id="practice" class="panel hidden">
+      <div class="hero"><div class="eyebrow">APRENDE PRACTICANDO</div><h1>Entrena tus <span>habilidades.</span></h1><p>Resuelve ejercicios y recibe retroalimentación.</p></div>
+      <div class="card practice-card"><span class="pill">EJERCICIO ALEATORIO</span><h2 id="practiceQuestion">Genera tu primer ejercicio.</h2><input id="practiceAnswer" class="math-input" placeholder="Escribe tu respuesta"><button id="checkBtn" class="primary">Comprobar respuesta →</button><div id="feedback" class="feedback"></div><button id="nextPractice" class="secondary">Otro ejercicio</button></div>
+    </section>
+    <section id="calculator" class="panel hidden">
+      <div class="hero"><div class="eyebrow">CÁLCULO RÁPIDO</div><h1>Calculadora <span>MaEva.</span></h1><p>Operaciones básicas y científicas sin salir del asistente.</p></div>
+      <div class="card calculator-card">
+        <div class="calc-display">
+          <div id="calcExpression" class="calc-expression" aria-live="polite">0</div>
+          <div id="calcResult" class="calc-result">0</div>
+        </div>
+        <div class="calc-grid">
+          <button class="calc-key utility" data-calc="clear">AC</button>
+          <button class="calc-key utility" data-calc="backspace">⌫</button>
+          <button class="calc-key utility" data-calc="percent">%</button>
+          <button class="calc-key operator" data-value="/">÷</button>
+          <button class="calc-key" data-value="7">7</button><button class="calc-key" data-value="8">8</button><button class="calc-key" data-value="9">9</button><button class="calc-key operator" data-value="*">×</button>
+          <button class="calc-key" data-value="4">4</button><button class="calc-key" data-value="5">5</button><button class="calc-key" data-value="6">6</button><button class="calc-key operator" data-value="-">−</button>
+          <button class="calc-key" data-value="1">1</button><button class="calc-key" data-value="2">2</button><button class="calc-key" data-value="3">3</button><button class="calc-key operator" data-value="+">+</button>
+          <button class="calc-key utility" data-calc="sign">±</button><button class="calc-key" data-value="0">0</button><button class="calc-key" data-value=".">.</button><button class="calc-key equals" data-calc="equals">=</button>
+          <button class="calc-key scientific" data-value="^2">x²</button><button class="calc-key scientific" data-value="^">xʸ</button><button class="calc-key scientific" data-calc="sqrt">√x</button><button class="calc-key scientific" data-value="(">(</button>
+          <button class="calc-key scientific" data-value=")">)</button><button class="calc-key scientific" data-value="pi">π</button><button class="calc-key scientific" data-value="e">e</button><button class="calc-key scientific" data-calc="ans">Ans</button>
+        </div>
+        <p id="calcError" class="error" role="alert"></p>
+        <p class="muted">Admite paréntesis, decimales, porcentajes, potencias y raíces. Puedes escribir una operación y pulsar =.</p>
+      </div>
+    </section>
+    <footer>MaEva · Asistente de Matemáticas · Verifica siempre los pasos y las condiciones de cada ejercicio.</footer>
+  </main>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/13.2.0/math.min.js"></script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body></html>
