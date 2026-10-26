@@ -51,11 +51,13 @@ const expr = $('graphExpr').value
   .replace(/(\d)(x)/g, '$1*$2')
   .replace(/\s/g, '');
 
-const xmin = Number($('xmin').value);
-const xmax = Number($('xmax').value);
+const xminText = $('xmin').value.trim();
+const xmaxText = $('xmax').value.trim();
+let xmin = xminText === '' ? -10 : Number(xminText);
+let xmax = xmaxText === '' ? 10 : Number(xmaxText);
 
 if (!Number.isFinite(xmin) || !Number.isFinite(xmax) || xmin >= xmax) {
-  throw new Error('Revisa el intervalo: el mínimo debe ser menor que el máximo.');
+  throw new Error('Revisa el intervalo: X mínimo debe ser menor que X máximo.');
 }
 
 const xs = [];
@@ -251,7 +253,12 @@ Plotly.newPlot('plot', traces, {
   displaylogo: false
 });
 
+// Quitar el procedimiento de la gráfica anterior para evitar duplicados.
+const previousExplanation = document.getElementById('graphExplanation');
+if (previousExplanation) previousExplanation.remove();
+
 const explanation = document.createElement('section');
+explanation.id = 'graphExplanation';
 
 explanation.style.cssText =
   'margin-top:24px;padding:20px;border:1px solid #293750;' +
@@ -335,12 +342,8 @@ $('checkBtn').addEventListener('click',async()=>{
     $('feedback').textContent=d.feedback+' Pista: '+d.hint+(d.expected?' Respuesta esperada: '+d.expected:'');
   }catch(e){$('feedback').textContent=e.message}
 });
-$('saveTeam').addEventListener('click',()=>{
-  const details={student1:$('student1').value.trim(),student2:$('student2').value.trim(),course:$('course').value.trim()};
-  try{localStorage.setItem('mathgenius-team',JSON.stringify(details));$('teamSaved').textContent='Datos guardados en este navegador.'}
-  catch{$('teamSaved').textContent='No se pudieron guardar los datos.'}
-});
-try{const d=JSON.parse(localStorage.getItem('mathgenius-team')||'{}');$('student1').value=d.student1||'';$('student2').value=d.student2||'';$('course').value=d.course||''}catch{}
+// El panel de datos del equipo ya no existe en el HTML.
+// No registrar listeners sobre elementos inexistentes.
 loadPractice();
 
 
@@ -349,7 +352,7 @@ loadPractice();
   const expressionEl = $('calcExpression');
   const resultEl = $('calcResult');
   const errorEl = $('calcError');
-  if (!expressionEl || !resultEl || !window.math) return;
+  if (!expressionEl || !resultEl) return;
 
   let expression = '';
   let lastAnswer = '0';
@@ -362,6 +365,7 @@ loadPractice();
         errorEl.textContent = '';
         return;
       }
+      if (!window.math) throw new Error('No se cargó Math.js. Revisa tu conexión a Internet y recarga la página.');
       const value = window.math.evaluate(expression);
       resultEl.textContent =
         typeof value === 'number' && Number.isFinite(value)
@@ -377,6 +381,7 @@ loadPractice();
   function calculate() {
     if (!expression.trim()) return;
     try {
+      if (!window.math) throw new Error('No se cargó Math.js. Revisa tu conexión a Internet y recarga la página.');
       const value = window.math.evaluate(expression);
       if (typeof value !== 'number' || !Number.isFinite(value)) {
         throw new Error('El resultado no es un número real finito.');
