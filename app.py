@@ -42,17 +42,33 @@ def parse_math(raw):
 
     if len(raw) > 180:
         raise ValueError("La expresión es demasiado larga (máximo 180 caracteres).")
+
+    # Normalizar exponentes y símbolos matemáticos comunes
+    raw = raw.replace("−", "-")
+    raw = raw.replace("×", "*")
+    raw = raw.replace("÷", "/")
+    raw = raw.replace("²", "^2")
+    raw = raw.replace("³", "^3")
+    raw = raw.replace("⁴", "^4")
+    raw = raw.replace("⁵", "^5")
+    raw = raw.replace("⁶", "^6")
+    raw = raw.replace("⁷", "^7")
+    raw = raw.replace("⁸", "^8")
+    raw = raw.replace("⁹", "^9")
+
+    # Validar los caracteres permitidos
     if not re.fullmatch(r"[0-9a-zA-Z_+\-*/^().,\s]+", raw):
-        raise ValueError("Hay caracteres no permitidos. Usa números, x, y, operaciones y funciones conocidas.")
+        raise ValueError(
+            "Hay caracteres no permitidos. Usa números, x, operaciones y funciones conocidas."
+        )
 
     expr = parse_expr(
-        raw.replace("÷", "/").replace("×", "*"),
+        raw.replace("^", "**"),
         local_dict=SAFE_LOCALS.copy(),
         global_dict=SAFE_GLOBALS,
         transformations=TRANSFORMS,
         evaluate=True
     )
-
     if not expr.free_symbols.issubset({x, y}):
         raise ValueError("Solo se permiten las variables x e y.")
 

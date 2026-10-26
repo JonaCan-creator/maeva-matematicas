@@ -46,10 +46,25 @@ $('graphBtn').addEventListener('click',async()=>{
     // Parse safe function syntax in the browser only after server validation.
     
 
+
 const expr = $('graphExpr').value
   .replace(/^\s*f\s*\(\s*x\s*\)\s*=\s*/i, '')
-  .replace(/(\d)(x)/g, '$1*$2')
+  .replace(/[−–]/g, '-')
+  .replace(/×/g, '*')
+  .replace(/÷/g, '/')
+  .replace(/²/g, '^2')
+  .replace(/³/g, '^3')
+  .replace(/⁴/g, '^4')
+  .replace(/⁵/g, '^5')
+  .replace(/⁶/g, '^6')
+  .replace(/⁷/g, '^7')
+  .replace(/⁸/g, '^8')
+  .replace(/⁹/g, '^9')
+  .replace(/(\d)(x)/gi, '$1*$2')
+  .replace(/(\d)(\()/g, '$1*$2')
+  .replace(/\)\s*(x|\d|\()/gi, ')*$1')
   .replace(/\s/g, '');
+
 
 const xminText = $('xmin').value.trim();
 const xmaxText = $('xmax').value.trim();
